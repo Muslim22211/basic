@@ -38,7 +38,7 @@
 
   async function start(){
     try{
-      setStatus("Requesting camera permission...");
+      setStatus("access...");
 
       const stream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: "user" },
